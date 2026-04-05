@@ -1,25 +1,88 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
+import { authService } from '@/services'
 
 const routes = [
   {
     path: '/',
     name: 'home',
-    component: HomeView
+    component: () => import('@/views/HomePage.vue'),
   },
   {
-    path: '/about',
-    name: 'about',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue')
-  }
+    path: '/catalog',
+    name: 'catalog',
+    component: () => import('@/views/CatalogPage.vue'),
+  },
+  {
+    path: '/product/:slug',
+    name: 'product',
+    component: () => import('@/views/ProductPage.vue'),
+  },
+  {
+    path: '/login',
+    name: 'login',
+    component: () => import('@/views/LoginPage.vue'),
+    meta: { guest: true },
+  },
+  {
+    path: '/register',
+    name: 'register',
+    component: () => import('@/views/RegisterPage.vue'),
+    meta: { guest: true },
+  },
+  {
+    path: '/cart',
+    name: 'cart',
+    component: () => import('@/views/CartPage.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/orders',
+    name: 'orders',
+    component: () => import('@/views/OrdersPage.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/profile',
+    name: 'profile',
+    component: () => import('@/views/ProfilePage.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/seller',
+    name: 'seller',
+    component: () => import('@/views/SellerPage.vue'),
+    meta: { requiresAuth: true, requiresSeller: true },
+  },
 ]
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
-  routes
+  routes,
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition
+    } else {
+      return { top: 0 }
+    }
+  },
+})
+
+// Navigation guards
+router.beforeEach((to, from, next) => {
+  const isAuthenticated = authService.isAuthenticated()
+
+  // Redirect authenticated users away from guest pages
+  if (to.meta.guest && isAuthenticated) {
+    return next({ name: 'home' })
+  }
+
+  // Redirect unauthenticated users to login
+  if (to.meta.requiresAuth && !isAuthenticated) {
+    return next({ name: 'login', query: { redirect: to.fullPath } })
+  }
+
+  next()
 })
 
 export default router
+
