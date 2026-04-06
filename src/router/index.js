@@ -99,12 +99,15 @@ const router = createRouter({
 
 // Navigation guards
 router.beforeEach((to, from, next) => {
-  const isAuthenticated = authService.isAuthenticated()
+  // Check authentication directly from localStorage, not from Pinia store
+  const token = localStorage.getItem('access_token')
+  const isAuthenticated = !!token
 
   console.log('Router Guard:', {
     to: to.path,
     from: from.path,
     isAuthenticated,
+    hasToken: !!token,
     toMeta: to.meta
   })
 
