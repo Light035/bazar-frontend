@@ -43,7 +43,11 @@
 
           <h3 class="font-medium text-gray-900 mb-1">{{ product.title }}</h3>
           <p class="text-lg font-bold text-primary-600 mb-2">{{ formatPrice(product.price) }} ₸</p>
-          <p class="text-sm text-gray-500 mb-4">{{ product.category.name }}</p>
+          <p class="text-sm text-gray-500 mb-1">{{ product.category.name }}</p>
+          <p class="text-sm text-gray-600 mb-2">
+            <span class="font-medium">Склад:</span> {{ product.stock }} шт.
+            <span v-if="!product.is_active" class="ml-2 text-red-600">(Неактивен)</span>
+          </p>
 
           <div class="flex gap-2">
             <button
@@ -152,6 +156,35 @@
                 {{ category.name }}
               </option>
             </select>
+          </div>
+
+          <!-- Stock -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Количество на складе
+            </label>
+            <input
+              v-model.number="form.stock"
+              type="number"
+              required
+              min="0"
+              step="1"
+              class="input-field"
+              placeholder="0"
+            />
+          </div>
+
+          <!-- Is Active -->
+          <div class="flex items-center">
+            <input
+              v-model="form.is_active"
+              type="checkbox"
+              id="is_active"
+              class="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+            />
+            <label for="is_active" class="ml-2 text-sm font-medium text-gray-700">
+              Активен (показывать в каталоге)
+            </label>
           </div>
 
           <!-- Image Upload Section (only for edit mode) -->
@@ -307,6 +340,8 @@ const form = ref({
   description: '',
   price: 0,
   category_id: '',
+  stock: 0,
+  is_active: true,
 })
 
 const formatPrice = (price) => {
@@ -341,6 +376,8 @@ const editProduct = async (product) => {
     description: product.description,
     price: product.price,
     category_id: product.category.id,
+    stock: product.stock,
+    is_active: product.is_active,
   }
   showEditModal.value = true
   await fetchProductImages(product.id)
@@ -433,11 +470,20 @@ const submitForm = async () => {
   try {
     if (showEditModal.value) {
       await sellerService.updateProduct(editingProductId.value, form.value)
+      closeModal()
+      await fetchProducts()
     } else {
-      await sellerService.createProduct(form.value)
+      // Create product and redirect to edit mode to add images
+      const newProduct = await sellerService.createProduct(form.value)
+      closeModal()
+      await fetchProducts()
+
+      // Open edit modal for the newly created product to add images
+      const createdProduct = products.value.find(p => p.id === newProduct.id)
+      if (createdProduct) {
+        await editProduct(createdProduct)
+      }
     }
-    closeModal()
-    await fetchProducts()
   } catch (error) {
     errorMessage.value = error.response?.data?.detail || 'Ошибка при сохранении товара'
   } finally {
@@ -455,6 +501,8 @@ const closeModal = () => {
     description: '',
     price: 0,
     category_id: '',
+    stock: 0,
+    is_active: true,
   }
   errorMessage.value = ''
   uploadProgress.value = 0
