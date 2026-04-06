@@ -142,8 +142,12 @@ const handleRegister = async () => {
   errors.value = []
 
   try {
-    await authStore.register(form.value)
-    router.push('/')
+    const response = await authStore.register(form.value)
+    // Redirect to email verification page
+    router.push({
+      name: 'email-verification',
+      query: { email: form.value.email }
+    })
   } catch (err) {
     const errorData = err.response?.data
     if (errorData) {

@@ -11,10 +11,7 @@ export const authService = {
 
   async register(userData) {
     const response = await api.post('/auth/register/', userData)
-    const { access, refresh, user } = response.data
-    localStorage.setItem('access_token', access)
-    localStorage.setItem('refresh_token', refresh)
-    return { user, access, refresh }
+    return response.data
   },
 
   async logout() {
@@ -42,6 +39,26 @@ export const authService = {
 
   async becomeSeller() {
     const response = await api.post('/auth/become-seller/')
+    return response.data
+  },
+
+  async verifyEmail(token) {
+    const response = await api.post(`/auth/verify-email/${token}/`)
+    return response.data
+  },
+
+  async resendVerification(email) {
+    const response = await api.post('/auth/resend-verification/', { email })
+    return response.data
+  },
+
+  async requestPasswordReset(email) {
+    const response = await api.post('/auth/password-reset/', { email })
+    return response.data
+  },
+
+  async confirmPasswordReset(token, password) {
+    const response = await api.post('/auth/password-reset/confirm/', { token, password })
     return response.data
   },
 
@@ -150,5 +167,29 @@ export const sellerService = {
   async getSellerOrders() {
     const response = await api.get('/seller/orders/')
     return response.data
+  },
+
+  async uploadProductImage(productId, formData, onUploadProgress) {
+    const response = await api.post(`/seller/products/${productId}/upload_image/`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      onUploadProgress,
+    })
+    return response.data
+  },
+
+  async getProductImages(productId) {
+    const response = await api.get(`/seller/products/${productId}/images/`)
+    return response.data
+  },
+
+  async updateProductImage(productId, imageId, data) {
+    const response = await api.patch(`/seller/products/${productId}/images/${imageId}/`, data)
+    return response.data
+  },
+
+  async deleteProductImage(productId, imageId) {
+    await api.delete(`/seller/products/${productId}/images/${imageId}/`)
   },
 }

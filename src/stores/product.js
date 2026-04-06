@@ -39,6 +39,7 @@ export const useProductStore = defineStore('product', {
       this.loading = true
       try {
         this.currentProduct = await productService.getProduct(slug)
+        return this.currentProduct
       } catch (error) {
         this.error = error.response?.data || 'Failed to fetch product'
         throw error

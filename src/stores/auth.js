@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { authService } from '@/services'
+import { useWishlistStore } from './wishlist'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -25,6 +26,11 @@ export const useAuthStore = defineStore('auth', {
         const { user } = await authService.login(email, password)
         this.user = user
         this.isAuthenticated = true
+
+        // Load wishlist after login
+        const wishlistStore = useWishlistStore()
+        await wishlistStore.fetchWishlist()
+
         return user
       } catch (error) {
         this.error = error.response?.data?.detail || 'Login failed'
@@ -38,10 +44,9 @@ export const useAuthStore = defineStore('auth', {
       this.loading = true
       this.error = null
       try {
-        const { user } = await authService.register(userData)
-        this.user = user
-        this.isAuthenticated = true
-        return user
+        const response = await authService.register(userData)
+        // Don't set user or tokens yet - wait for email verification
+        return response
       } catch (error) {
         this.error = error.response?.data || 'Registration failed'
         throw error
@@ -56,6 +61,10 @@ export const useAuthStore = defineStore('auth', {
       } finally {
         this.user = null
         this.isAuthenticated = false
+
+        // Clear wishlist on logout
+        const wishlistStore = useWishlistStore()
+        wishlistStore.clearWishlist()
       }
     },
 
@@ -69,6 +78,10 @@ export const useAuthStore = defineStore('auth', {
         const user = await authService.getProfile()
         this.user = user
         this.isAuthenticated = true
+
+        // Load wishlist after fetching profile
+        const wishlistStore = useWishlistStore()
+        await wishlistStore.fetchWishlist()
       } catch (error) {
         this.user = null
         this.isAuthenticated = false

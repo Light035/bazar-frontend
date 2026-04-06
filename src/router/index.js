@@ -30,9 +30,39 @@ const routes = [
     meta: { guest: true },
   },
   {
+    path: '/email-verification',
+    name: 'email-verification',
+    component: () => import('@/views/EmailVerificationPage.vue'),
+    meta: { guest: true },
+  },
+  {
+    path: '/verify-email/:token',
+    name: 'verify-email',
+    component: () => import('@/views/EmailVerifiedPage.vue'),
+    meta: { guest: true },
+  },
+  {
+    path: '/password-reset',
+    name: 'password-reset',
+    component: () => import('@/views/PasswordResetPage.vue'),
+    meta: { guest: true },
+  },
+  {
+    path: '/password-reset/confirm/:token',
+    name: 'password-reset-confirm',
+    component: () => import('@/views/PasswordResetConfirmPage.vue'),
+    meta: { guest: true },
+  },
+  {
     path: '/cart',
     name: 'cart',
     component: () => import('@/views/CartPage.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/wishlist',
+    name: 'wishlist',
+    component: () => import('@/views/WishlistPage.vue'),
     meta: { requiresAuth: true },
   },
   {

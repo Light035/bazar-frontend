@@ -17,7 +17,8 @@
           </p>
           <router-link
             to="/catalog"
-            class="inline-flex items-center px-8 py-4 bg-white text-red-600 rounded-2xl font-bold text-lg hover:bg-gray-50 hover:shadow-2xl hover:scale-105 transition-all duration-300"
+            class="inline-flex items-center px-8 py-4 bg-white text-red-600 rounded-2xl font-bold text-lg hover:bg-gray-50 hover:shadow-2xl transition-all duration-300 cursor-pointer"
+            style="pointer-events: all;"
           >
             <span>Перейти в каталог</span>
             <svg class="w-6 h-6 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -46,7 +47,8 @@
           v-for="category in categories"
           :key="category.id"
           :to="{ name: 'catalog', query: { category: category.slug } }"
-          class="group bg-white rounded-2xl p-6 text-center hover:shadow-xl hover:scale-105 transition-all duration-300 border border-gray-100"
+          class="group bg-white rounded-2xl p-6 text-center hover:shadow-xl transition-all duration-300 border border-gray-100 cursor-pointer"
+          style="pointer-events: all;"
         >
           <div class="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-red-50 to-red-100 rounded-2xl flex items-center justify-center group-hover:from-red-500 group-hover:to-red-600 transition-all duration-300">
             <svg class="w-10 h-10 text-red-600 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">

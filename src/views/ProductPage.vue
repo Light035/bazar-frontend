@@ -18,18 +18,39 @@
       <!-- Product Details -->
       <div v-else-if="product" class="space-y-8">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <!-- Product Images -->
-          <div>
-            <img
-              v-if="product.main_image"
-              :src="product.main_image"
-              :alt="product.title"
-              class="w-full aspect-square object-cover rounded-lg"
-            />
-            <div v-else class="w-full aspect-square bg-gray-200 rounded-lg flex items-center justify-center">
-              <svg class="w-24 h-24 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
+          <!-- Product Images Gallery -->
+          <div class="space-y-4">
+            <!-- Main Image -->
+            <div class="relative aspect-square bg-gray-100 rounded-lg overflow-hidden group">
+              <img
+                v-if="selectedImage"
+                :src="selectedImage"
+                :alt="product.title"
+                class="w-full h-full object-cover cursor-zoom-in transition-transform group-hover:scale-110"
+                @click="zoomImage"
+              />
+              <div v-else class="w-full h-full flex items-center justify-center">
+                <svg class="w-24 h-24 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+            </div>
+
+            <!-- Thumbnail Gallery -->
+            <div v-if="productImages.length > 1" class="grid grid-cols-5 gap-2">
+              <div
+                v-for="image in productImages"
+                :key="image.id"
+                @click="selectImage(image)"
+                class="aspect-square rounded-lg overflow-hidden cursor-pointer border-2 transition-all"
+                :class="selectedImage === image.image_url ? 'border-primary-600' : 'border-transparent hover:border-gray-300'"
+              >
+                <img
+                  :src="image.thumbnail_url || image.image_url"
+                  :alt="product.title"
+                  class="w-full h-full object-cover"
+                />
+              </div>
             </div>
           </div>
 
@@ -65,6 +86,31 @@
               >
                 {{ addingToCart ? 'Добавление...' : 'Добавить в корзину' }}
               </button>
+              <button
+                @click="toggleWishlist"
+                :disabled="wishlistLoading"
+                class="btn-secondary px-6 disabled:opacity-50"
+                :title="isInWishlist ? 'Удалить из избранного' : 'Добавить в избранное'"
+              >
+                <svg
+                  class="w-6 h-6 transition-colors"
+                  :class="isInWishlist ? 'text-red-600' : 'text-gray-600'"
+                  :fill="isInWishlist ? 'currentColor' : 'none'"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            <div v-if="product.wishlist_count > 0" class="text-sm text-gray-500">
+              {{ product.wishlist_count }} {{ product.wishlist_count === 1 ? 'человек добавил' : 'человек добавили' }} в избранное
             </div>
 
             <div v-if="product.seller" class="bg-gray-50 p-4 rounded-lg">
@@ -176,29 +222,59 @@
         </form>
       </div>
     </div>
+
+    <!-- Image Zoom Modal -->
+    <div
+      v-if="showZoomModal"
+      class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4"
+      @click="showZoomModal = false"
+    >
+      <button
+        @click="showZoomModal = false"
+        class="absolute top-4 right-4 text-white hover:text-gray-300"
+      >
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+      <img
+        :src="selectedImage"
+        :alt="product?.title"
+        class="max-w-full max-h-full object-contain"
+        @click.stop
+      />
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useProductStore } from '@/stores/product'
 import { useCartStore } from '@/stores/cart'
 import { useAuthStore } from '@/stores/auth'
+import { useWishlistStore } from '@/stores/wishlist'
 import { productService } from '@/services'
 import Navbar from '@/components/Navbar.vue'
 
 const route = useRoute()
+const router = useRouter()
 const productStore = useProductStore()
 const cartStore = useCartStore()
 const authStore = useAuthStore()
+const wishlistStore = useWishlistStore()
 
 const product = ref(null)
 const reviews = ref([])
+const productImages = ref([])
+const selectedImage = ref(null)
+const showZoomModal = ref(false)
 const loading = ref(true)
 const addingToCart = ref(false)
 const showReviewModal = ref(false)
 const reviewLoading = ref(false)
+const wishlistLoading = ref(false)
+const isInWishlist = ref(false)
 
 const reviewForm = ref({
   rating: 5,
@@ -219,7 +295,7 @@ const formatDate = (dateString) => {
 
 const addToCart = async () => {
   if (!authStore.isAuthenticated) {
-    alert('Войдите в аккаунт для добавления в корзину')
+    router.push({ name: 'login', query: { redirect: route.fullPath } })
     return
   }
 
@@ -232,6 +308,43 @@ const addToCart = async () => {
   } finally {
     addingToCart.value = false
   }
+}
+
+const toggleWishlist = async () => {
+  if (!authStore.isAuthenticated) {
+    router.push({ name: 'login', query: { redirect: route.fullPath } })
+    return
+  }
+
+  wishlistLoading.value = true
+
+  // Optimistic UI update
+  const previousState = isInWishlist.value
+  isInWishlist.value = !isInWishlist.value
+
+  try {
+    if (previousState) {
+      await wishlistStore.removeFromWishlist(product.value.id)
+    } else {
+      await wishlistStore.addToWishlist(product.value.id)
+    }
+    // Refresh product to get updated wishlist_count
+    await fetchProduct()
+  } catch (error) {
+    // Revert on error
+    isInWishlist.value = previousState
+    alert('Ошибка при обновлении избранного')
+  } finally {
+    wishlistLoading.value = false
+  }
+}
+
+const selectImage = (image) => {
+  selectedImage.value = image.image_url
+}
+
+const zoomImage = () => {
+  showZoomModal.value = true
 }
 
 const submitReview = async () => {
@@ -250,8 +363,8 @@ const submitReview = async () => {
 }
 
 const fetchProduct = async () => {
-  const data = await productStore.fetchProduct(route.params.slug)
-  product.value = data
+  await productStore.fetchProduct(route.params.slug)
+  product.value = productStore.currentProduct
 }
 
 const fetchReviews = async () => {
@@ -262,6 +375,21 @@ const fetchReviews = async () => {
 onMounted(async () => {
   await fetchProduct()
   await fetchReviews()
+
+  // Set initial selected image
+  if (product.value?.images && product.value.images.length > 0) {
+    productImages.value = product.value.images
+    const mainImage = product.value.images.find(img => img.is_main)
+    selectedImage.value = mainImage ? mainImage.image_url : product.value.images[0].image_url
+  } else if (product.value?.main_image) {
+    selectedImage.value = product.value.main_image
+  }
+
+  // Check if product is in wishlist
+  if (authStore.isAuthenticated && product.value) {
+    isInWishlist.value = wishlistStore.isInWishlist(product.value.id)
+  }
+
   loading.value = false
 })
 </script>

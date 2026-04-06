@@ -1,5 +1,5 @@
 <template>
-  <div class="group cursor-pointer relative bg-white rounded-2xl overflow-hidden border border-gray-100 hover:border-red-200 hover:shadow-2xl transition-all duration-300" @click="goToProduct">
+  <div class="group cursor-pointer relative bg-white rounded-2xl overflow-hidden border border-gray-100 hover:border-red-200 hover:shadow-2xl transition-all duration-300" @click="goToProduct" style="pointer-events: all;">
     <!-- Wishlist Heart Button -->
     <button
       @click.stop="toggleWishlist"
@@ -95,8 +95,9 @@
       <button
         @click.stop="handleAddToCart"
         :disabled="product.stock === 0 || loading"
-        class="w-full py-3 px-4 rounded-xl font-semibold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-        :class="product.stock === 0 ? 'bg-gray-100 text-gray-400' : 'bg-gradient-to-r from-red-500 to-red-600 text-white hover:shadow-lg hover:scale-105 active:scale-95'"
+        class="w-full py-3 px-4 rounded-xl font-semibold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+        :class="product.stock === 0 ? 'bg-gray-100 text-gray-400' : 'bg-gradient-to-r from-red-500 to-red-600 text-white hover:shadow-lg active:scale-95'"
+        style="pointer-events: all;"
       >
         <span v-if="loading" class="flex items-center justify-center">
           <svg class="animate-spin h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24">

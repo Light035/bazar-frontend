@@ -23,6 +23,13 @@
           <!-- Error Message -->
           <div v-if="error" class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
             {{ error }}
+            <button
+              v-if="showResendLink"
+              @click="resendVerification"
+              class="block mt-2 text-sm font-medium text-primary-600 hover:text-primary-700 underline"
+            >
+              Resend verification email
+            </button>
           </div>
 
           <!-- Email -->
@@ -42,15 +49,20 @@
 
           <!-- Password -->
           <div>
-            <label for="password" class="block text-sm font-medium text-gray-700">
-              Пароль
-            </label>
+            <div class="flex justify-between items-center mb-1">
+              <label for="password" class="block text-sm font-medium text-gray-700">
+                Пароль
+              </label>
+              <router-link to="/password-reset" class="text-sm text-primary-600 hover:text-primary-500">
+                Забыли пароль?
+              </router-link>
+            </div>
             <input
               id="password"
               v-model="form.password"
               type="password"
               required
-              class="input-field mt-1"
+              class="input-field"
               placeholder="••••••••"
             />
           </div>
@@ -86,6 +98,8 @@ const form = ref({
 
 const loading = ref(false)
 const error = ref('')
+const showResendLink = ref(false)
+const unverifiedEmail = ref('')
 
 const handleLogin = async () => {
   loading.value = true
@@ -96,9 +110,26 @@ const handleLogin = async () => {
     const redirect = route.query.redirect || '/'
     router.push(redirect)
   } catch (err) {
-    error.value = err.response?.data?.non_field_errors?.[0] || 'Неверный email или пароль'
+    const errorData = err.response?.data
+
+    // Check if email not verified
+    if (err.response?.status === 403 && errorData?.error === 'Email not verified') {
+      error.value = errorData.message
+      showResendLink.value = true
+      unverifiedEmail.value = errorData.email
+    } else {
+      error.value = errorData?.non_field_errors?.[0] || 'Неверный email или пароль'
+      showResendLink.value = false
+    }
   } finally {
     loading.value = false
   }
+}
+
+const resendVerification = () => {
+  router.push({
+    name: 'email-verification',
+    query: { email: unverifiedEmail.value }
+  })
 }
 </script>
