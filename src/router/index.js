@@ -101,16 +101,26 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const isAuthenticated = authService.isAuthenticated()
 
+  console.log('Router Guard:', {
+    to: to.path,
+    from: from.path,
+    isAuthenticated,
+    toMeta: to.meta
+  })
+
   // Redirect authenticated users away from guest pages
   if (to.meta.guest && isAuthenticated) {
+    console.log('Redirecting authenticated user away from guest page')
     return next({ name: 'home' })
   }
 
   // Redirect unauthenticated users to login
   if (to.meta.requiresAuth && !isAuthenticated) {
+    console.log('Redirecting unauthenticated user to login')
     return next({ name: 'login', query: { redirect: to.fullPath } })
   }
 
+  console.log('Allowing navigation')
   next()
 })
 
