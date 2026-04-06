@@ -17,8 +17,7 @@
           </p>
           <router-link
             to="/catalog"
-            class="inline-flex items-center px-8 py-4 bg-white text-red-600 rounded-2xl font-bold text-lg hover:bg-gray-50 hover:shadow-2xl transition-all duration-300 cursor-pointer"
-            style="pointer-events: all;"
+            class="inline-flex items-center px-8 py-4 bg-white text-red-600 rounded-2xl font-bold text-lg shadow-lg hover:shadow-2xl hover:bg-gray-50 transition-shadow duration-300"
           >
             <span>Перейти в каталог</span>
             <svg class="w-6 h-6 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
