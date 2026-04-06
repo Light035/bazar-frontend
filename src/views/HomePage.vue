@@ -3,11 +3,11 @@
     <Navbar />
 
     <!-- Hero Section -->
-    <div class="relative bg-gradient-to-br from-red-500 via-red-600 to-red-700 overflow-hidden">
-      <div class="absolute inset-0 bg-black/10"></div>
-      <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDEzNGg3djFoLTd6bTAtNWg3djFoLTd6Ii8+PC9nPjwvZz48L3N2Zz4=')] opacity-20"></div>
+    <div class="relative bg-gradient-to-br from-red-500 via-red-600 to-red-700 overflow-hidden pb-20">
+      <div class="absolute inset-0 bg-black/10 pointer-events-none"></div>
+      <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDEzNGg3djFoLTd6bTAtNWg3djFoLTd6Ii8+PC9nPjwvZz48L3N2Zz4=')] opacity-20 pointer-events-none"></div>
 
-      <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+      <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div class="text-center">
           <h1 class="text-5xl md:text-6xl font-bold text-white mb-6 animate-fade-in">
             Добро пожаловать в Bazar
@@ -17,7 +17,7 @@
           </p>
           <router-link
             to="/catalog"
-            class="inline-flex items-center px-8 py-4 bg-white text-red-600 rounded-2xl font-bold text-lg shadow-lg hover:shadow-2xl hover:bg-gray-50 transition-shadow duration-300"
+            class="relative z-20 inline-flex items-center px-8 py-4 bg-white text-red-600 rounded-2xl font-bold text-lg shadow-lg hover:shadow-2xl hover:bg-gray-50 hover:scale-102 transition-all duration-300"
           >
             <span>Перейти в каталог</span>
             <svg class="w-6 h-6 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -25,13 +25,6 @@
             </svg>
           </router-link>
         </div>
-      </div>
-
-      <!-- Wave Divider -->
-      <div class="absolute bottom-0 left-0 right-0">
-        <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-auto">
-          <path d="M0 120L60 105C120 90 240 60 360 45C480 30 600 30 720 37.5C840 45 960 60 1080 67.5C1200 75 1320 75 1380 75L1440 75V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="#F9FAFB"/>
-        </svg>
       </div>
     </div>
 
@@ -201,5 +194,9 @@ onMounted(async () => {
 
 .animate-fade-in {
   animation: fade-in 0.8s ease-out;
+}
+
+.hover\:scale-102:hover {
+  transform: scale(1.02);
 }
 </style>
