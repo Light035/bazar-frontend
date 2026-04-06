@@ -169,7 +169,7 @@
           <router-link
             v-else
             to="/login"
-            class="px-6 py-2.5 bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-300"
+            class="px-6 py-2.5 bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold rounded-xl hover:shadow-lg transition-all duration-300"
           >
             Войти
           </router-link>
